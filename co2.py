@@ -1,5 +1,21 @@
 from math import *
 
+g = 9.80665
+h_C_Buf = 1
+
+alpha = 0.385
+PAR_Can = 100 # Arbitrary constant
+J_MAX_25_Leaf = 210
+Theta = 0.7
+n_CO2_Air_Stom = 0.67
+C_Gamma = 1.7
+T_25_K = 298.15
+H_J_Pot = 220000
+S_J_Pot = 710
+E_j = 37000
+R_gas = 8.314
+
+
 ###############################################################################################
 
 def MC_Blow_Air(data):
@@ -22,7 +38,7 @@ def MC_Ext_Air(data):
 ###############################################################################################
 
 def MC_Pad_Air(data):
-	U_Pad, phi_Pad, A_Flr = data.U_Pad, data.phi_Pad, data.A_Flr
+	U_Pad, phi_Pad, A_Flr, CO2_Air = data.U_Pad, data.phi_Pad, data.A_Flr, data.CO2_Air
 
 	f_Pad = U_Pad * phi_Pad / A_Flr
 	return f_Pad * (CO2_Out - CO2_Air)
@@ -32,11 +48,12 @@ def MC_Pad_Air(data):
 ###############################################################################################
 
 def MC_Air_Top(data):
+
 	U_ThScr, K_ThScr, T_Air, T_Top = data.U_ThScr, data.K_ThScr, data.T_Air, data.T_Top
 	p_Mean_Air, p_Air, p_Top = data.p_Mean_Air, data.p_Air, data.p_Top
 
-	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top) ** (2/3) 
-	f_ThScr+= (1 - U_ThScr) * (g * (1 - U_ThScr)/ (2 * p_Mean_Air)*(p_Air - p_Top)) ** (1/2)
+	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
+	f_ThScr += (1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * p_Mean_Air) * (p_Air - p_Top))**0.5
 	return 0
 
 ###############################################################################################
@@ -56,8 +73,8 @@ def f_Vent_Roof_Side(data, A_Roof):
 	m2 = (U_Roof * U_Side * A_Roof * A_Side)**2 / ((U_Roof * A_Roof)**2 + (U_Side * A_Side)**2)
 	m2 *= 2 * g * h_Side_Roof * (T_Air - T_Out) / T_Mean_Air
 	m3 = ((U_Roof * A_Roof + U_Side * A_Side) / 2)**2
-	m3 *=C_w * v_wind**2
-	return m1 * (m2 + m3)**(1/2)
+	m3 *= C_w * v_wind**2
+	return m1 * (m2 + m3)**0.5
 
 def n_Ins_Scr(data):
 	S_Ins_Scr = data.S_Ins_Scr
@@ -116,12 +133,39 @@ def f_2com_Vent_Roof(data):
 def MC_Air_Can(data):
 	M_CH2O, P, R = data.M_CH2O, data.P, data.R
 
-	return M_CH2O * h_C_Buf(data) * (P - R)
+	return M_CH2O * h_C_Buf * (P - R)
 
-def h_C_Buf(data):
-	C_Buf, C_Max_Buf = data.C_Buf, data.C_Max_Buf
+def P_synth_rate():
+	return
 
-	return 0 if C_Buf > C_Max_Buf else 0
+def P_res_rate():
+	return
+
+def elec_trans_rate():
+	return
+
+def elec_trans_potent(data):
+	T_Can, LAI = data.T_Can, data.LAI
+	J_MAX_25_Can = LAI * J_MAX_25_Leaf
+
+	exp1 = E_j * (T_Can - T_25_K) / (R_gas * T_Can * T_25_K)
+	exp1 = exp(exp1)
+
+	exp2 = S_J_Pot * T_25_K - H_J_Pot
+	exp2 /= R_gas * T_25_K
+	exp2 = 1 + exp(exp2)
+
+	exp3 = S_J_Pot * T_Can - H_J_Pot
+	exp3 /= R_gas * T_Can
+	exp3 = 1 + exp(exp3)
+	
+	return J_MAX_25_Can * exp1 * exp2 / exp3
+
+def CO2_Stomata(data):
+	return n_CO2_Air_Stom * data.CO2_Air
+
+def CO2_compensate(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
+	return C_Gamma * (data.T_Air + 1)
 
 ###############################################################################################
 
