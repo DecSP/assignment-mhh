@@ -1,0 +1,11 @@
+n_Heatco2
+U_Blow
+P_Blow
+A_Flr
+U_extCo2
+phi_ExtCo2
+U_pad
+Phi_pad
+Co2_Out
+fThScr
+
