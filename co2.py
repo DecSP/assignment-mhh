@@ -54,7 +54,7 @@ def MC_Air_Top(data):
 
 	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
 	f_ThScr += (1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * p_Mean_Air) * (p_Air - p_Top))**0.5
-	return 0
+	return f_ThScr * (CO2_Air - CO2_Top)
 
 ###############################################################################################
 
