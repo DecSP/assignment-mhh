@@ -139,16 +139,24 @@ def MC_Air_Can(data):
 
 ###############################################################################################
 
-def P_synth_rate():
-	return
+def PhotoSynth(data):
+	Gamma = GComp(data)
+	CO2_Stom = CO2Stomata(data)
+	P = JTrans(data) * (CO2_Stom - Gamma)
+	P /= 4 * (CO2_Stom + 2 * Gamma)
+	return P
 
-def P_res_rate():
-	return
+def PhotoRespi(data):
+	return PhotoSynth(data) * GComp(data) / CO2Stomata(data)
 
-def elec_trans_rate():
-	return
+def JTrans(data):
+	aP = alpha * PAR_Can
+	J_Pot = JPotent(data)
+	J = J_Pot + aP - ((J_Pot + aP)**2 - 4 * Theta * J_Pot * aP)**0.5
 
-def elec_trans_potent(data):
+	return J / (2 * Theta)
+
+def JPotent(data):
 	T_Can, LAI = data.T_Can, data.LAI
 	J_MAX_25_Can = LAI * J_MAX_25_Leaf
 
@@ -165,11 +173,13 @@ def elec_trans_potent(data):
 	
 	return J_MAX_25_Can * exp1 * exp2 / exp3
 
-def CO2_Stomata(data, CO2_Air):
-	return n_CO2_Air_Stom * CO2_Air
+def CO2Stomata(data):
+	return n_CO2_Air_Stom * data.CO2_Air
 
-def CO2_compensate(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
-	return C_Gamma * (data.T_Air + 1)
+def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
+	T_Can, LAI = data.T_Can, data.LAI
+
+	return C_Gamma * T_Can / LAI + 20 * C_Gamma * (1 - 1 / LAI)
 
 ###############################################################################################
 
