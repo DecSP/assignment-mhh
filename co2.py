@@ -37,8 +37,8 @@ def MC_Ext_Air(data):
 
 ###############################################################################################
 
-def MC_Pad_Air(data):
-	U_Pad, phi_Pad, A_Flr, CO2_Air = data.U_Pad, data.phi_Pad, data.A_Flr, data.CO2_Air
+def MC_Pad_Air(data, CO2_Air):
+	U_Pad, phi_Pad, A_Flr = data.U_Pad, data.phi_Pad, data.A_Flr
 
 	f_Pad = U_Pad * phi_Pad / A_Flr
 	return f_Pad * (CO2_Out - CO2_Air)
@@ -58,8 +58,8 @@ def MC_Air_Top(data):
 
 ###############################################################################################
 
-def MC_Air_Out(data):
-	f_Vent_Side, f_Vent_Forced, CO2_Air, CO2_Out = data.f_Vent_Side, data.f_Vent_Forced, data.CO2_Air, data.CO2_Out
+def MC_Air_Out(data,CO2_Air):
+	f_Vent_Side, f_Vent_Forced, CO2_Out = data.f_Vent_Side, data.f_Vent_Forced, data.CO2_Out
 
 	return (f_Vent_Side + f_Vent_Forced) * (CO2_Air - CO2_Out)
 
@@ -107,8 +107,8 @@ def f_Vent_Forced(data):
 
 ###############################################################################################
 
-def MC_Top_Out(data):
-	f_Vent_Roof, CO2_Top, CO2_Out = data.f_Vent_Roof, data.CO2_Top, data.CO2_Out
+def MC_Top_Out(data, CO2_Top):
+	f_Vent_Roof, CO2_Out = data.f_Vent_Roof, data.CO2_Out
 
 	return f_Vent_Roof * (CO2_Top - CO2_Out)
 
@@ -161,8 +161,8 @@ def elec_trans_potent(data):
 	
 	return J_MAX_25_Can * exp1 * exp2 / exp3
 
-def CO2_Stomata(data):
-	return n_CO2_Air_Stom * data.CO2_Air
+def CO2_Stomata(data, CO2_Air):
+	return n_CO2_Air_Stom * CO2_Air
 
 def CO2_compensate(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 	return C_Gamma * (data.T_Air + 1)
