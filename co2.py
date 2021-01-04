@@ -78,7 +78,7 @@ def MC_Pad_Air(data, CO2_Air):
 
 ###############################################################################################
 
-def MC_Air_Top(data):
+def MC_Air_Top(data, CO2_Air, CO2_Top):
 
 	U_ThScr, K_ThScr, T_Air, T_Top = data.U_ThScr, data.K_ThScr, data.T_Air, data.T_Top
 	p_Mean_Air, p_Air, p_Top = data.p_Mean_Air, data.p_Air, data.p_Top
@@ -164,7 +164,7 @@ def f_2com_Vent_Roof(data):
 ###############################################################################################
 
 def MC_Air_Can(data):
-	M_CH2O, P, R = data.M_CH2O, data.P, data.R
+	M_CH2O, P, R = data.M_CH2O, PhotoSynth(data), PhotoRespi(data)
 
 	return M_CH2O * h_C_Buf * (P - R)
 
@@ -216,9 +216,9 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 
 def dxCO2_Air(data, CO2_Air, CO2_Top):
 
-	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air - MC_Air_Can - MC_Air_Top - MC_Air_Out)/ capCO2_Air
+	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
 
-	return (MC_Air_Top - MC_Top_Out)/ capCO2_Top
+	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
 	
