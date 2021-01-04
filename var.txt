@@ -4,19 +4,19 @@ eta_Side_Thr=0.9
 RHO_Air0=1.20
 K_Thr_Scr=0.25*10^-3
 A_Flr=7.8*10^4
-h_Vent=0.97
-zeta_Ins_Scr=1
+h_Vent=0.68
+zeta_Ins_Scr=1.0
 c_leakeage=1e-4x
 phi_pad=x
 phi_vent_forced=x
-phi_ext_co2=4.3*10^5
+phi_ext_co2=7.2*10^4
 P_Blow=x
-A_Roof/A_Flr=0.18
+A_Roof/A_Flr=0.1
 A_Side=0
 
 #Formular 8.74, 8.75
 C_d=Gh_C_d(1-eta_Sh_Scr_Cd*U_Sh)
-Gh_C_d=0.65
+Gh_C_d=0.75
 eta_Sh_Scr_Cd=x
 Gh_C_w0.09
 eta_Sh_Scr_Cw=x
