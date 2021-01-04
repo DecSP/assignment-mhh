@@ -130,10 +130,14 @@ def f_2com_Vent_Roof(data):
 	m3 = C_w * v_wind**2
 	return m1 * (m2 + m3) ** 0.5
 
+###############################################################################################
+
 def MC_Air_Can(data):
 	M_CH2O, P, R = data.M_CH2O, data.P, data.R
 
 	return M_CH2O * h_C_Buf * (P - R)
+
+###############################################################################################
 
 def P_synth_rate():
 	return
@@ -169,3 +173,11 @@ def CO2_compensate(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler
 
 ###############################################################################################
 
+def dxCO2_Air(data):
+
+	return (MC_Blow_Air + MC_Ext_Air + MC_Pad_Air - MC_Air_Can - MC_Air_Top - MC_Air_Out)/ capCO2_Air
+
+def dxCO2_Top(data):
+
+	return (MC_Air_Top - MC_Top_Out)/ capCO2_Top
+	
