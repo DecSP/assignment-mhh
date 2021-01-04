@@ -1,5 +1,6 @@
 from co2 import *
 
+#x0, y0 for Co2air, co2top, t0, t, h mean time start, time end, step
 def euler(t0, x0, y0, h, t)
     n=(t-t0)/h
     for i in range (1, n+1):
