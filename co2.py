@@ -183,11 +183,11 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 
 ###############################################################################################
 
-def dxCO2_Air(data):
+def dxCO2_Air(data, CO2_Air, CO2_Top):
 
-	return (MC_Blow_Air + MC_Ext_Air + MC_Pad_Air - MC_Air_Can - MC_Air_Top - MC_Air_Out)/ capCO2_Air
+	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air - MC_Air_Can - MC_Air_Top - MC_Air_Out)/ capCO2_Air
 
-def dxCO2_Top(data):
+def dxCO2_Top(data, CO2_Air, CO2_Top):
 
 	return (MC_Air_Top - MC_Top_Out)/ capCO2_Top
 	
