@@ -1,10 +1,8 @@
 from math import *
 
-g = 9.80665
-h_C_Buf = 1
-
+# Global constants (apply to all model)
+g = 9.81
 alpha = 0.385
-PAR_Can = 100 # Arbitrary constant
 J_MAX_25_Leaf = 210
 Theta = 0.7
 n_CO2_Air_Stom = 0.67
@@ -14,7 +12,40 @@ H_J_Pot = 220000
 S_J_Pot = 710
 E_j = 37000
 R_gas = 8.314
+R_S_min = 82.0
 
+# Local constants (apply to specific greenhouses)
+A_Flr = 4000
+C_d = 0.5
+
+
+# Mutable constants
+h_C_Buf = 1
+PAR_Can = 100
+
+# Unknown constants/variable
+CO2_Out = 0		# meteo.csv dataset?
+
+###############################################################################################
+
+###############################################################################################
+
+# Controller (Blower, Pad, Vent,...) (0<=U<=1)
+# Initiate here to avoid compile error only, please edit at #!
+U_Blow = 0.5		#!
+U_Ext_CO2 = 0.5		#!
+U_Pad = 0.5			#!
+U_Roof = 0.5		#!
+U_Side = 0.5		#!
+U_ThScr = 0.5		#!
+U_Vent_Forced = 0.5	#!
+
+# Capacity (Blower, External air, Pad,...)
+# Initiate here to avoid compile error only, please edit at #!
+P_Blow = 7			#!
+phi_Ext_CO2 = 7		#!
+phi_Pad	= 7			#!
+K_ThScr	= 1e-3		#!
 
 ###############################################################################################
 
