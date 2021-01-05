@@ -1,30 +1,28 @@
 from math import *
 
-class dataClass:
-	def __init__(self, A, C, phi, K, P, zeta, T, h, U):
-		self.A_Flr, self.A_Side = A
-		self.C_d, self.C_w, self.c_leakage = C
-		self.phi_Pad, self.phi_Vent_Forced, self.phi_Ext_CO2 = phi
-		self.K_ThScr = K
-		self.P_Blow = P
-		self.zeta_Ins_Scr = zeta
-		self.T_Air, self.T_Out, self.T_Can, self.T_Top, self.T_Mean_Air = T
-		self.h_Roof, self.h_C_Buf, self.h_Side_Roof = h
-		self.U_Blow, self.U_Ext_CO2, self.U_Pad, self.U_Roof, self.U_Side, self.U_ThScr, U_Vent_Forced = U
 
-		self.rho_Air = self.Compute_rho(...) 
-		self.rho_Top = self.Compute_rho(...) 
-		self.rho_Mean_Air = self.Compute_rho(...) 
+data = {}
 
-	def Compute_rho(M_Air, h_elevation):
-		global rho_Air0, g, R_gas
+# Data initialization
+data["A_Flr"], data["A_Side"] = 
+data["C_d"], data["C_w"] = 
+data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 
+data["K_ThScr"] = 
+data["P_Blow"] = 
+data["zeta_Ins_Scr"] = 
+data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 
+data["h_Roof"], data["h_C_Buf"], data["h_Side_Roof"] = 
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 
+data["c_leakage"], data["f_leakage"] = 
+data["v_wind"] = 
 
-		return rho_Air0*exp((g*M_Air*h_elevation)/(293.15*R_gas))
+data["rho_Air"] =  
+data["rho_Top"] =  
+data["rho_Mean_Air"] =  
+
 
 ## main code ##
-data = dataClass(...)
-dA = dxCO2_Air(data,0,0)
-dT = dxCO2_Top(data,0,0)
+
 # :(((
 ###############
 
@@ -50,7 +48,7 @@ eta_Side_Thr=0.9
 
 def MC_Blow_Air(data):
 	global eta_Heat_CO2
-	U_Blow, P_Blow, A_Flr = data.U_Blow, data.P_Blow, data.A_Flr
+	U_Blow, P_Blow, A_Flr = data["U_Blow"], data["P_Blow"], data["A_Flr"]
 
 	H_Blow_Air = U_Blow * P_Blow / A_Flr
 	return eta_Heat_CO2 * H_Blow_Air
@@ -60,7 +58,7 @@ def MC_Blow_Air(data):
 ###############################################################################################
 
 def MC_Ext_Air(data):
-	U_Ext_CO2, phi_Ext_CO2, A_Flr = data.U_Ext_CO2, data.phi_Ext_CO2, data.A_Flr
+	U_Ext_CO2, phi_Ext_CO2, A_Flr = data["U_Ext_CO2"], data["phi_Ext_CO2"], data["A_Flr"]
 
 	return U_Ext_CO2 * phi_Ext_CO2 / A_Flr
 
@@ -69,7 +67,7 @@ def MC_Ext_Air(data):
 ###############################################################################################
 
 def MC_Pad_Air(data, CO2_Air):
-	U_Pad, phi_Pad, A_Flr = data.U_Pad, data.phi_Pad, data.A_Flr
+	U_Pad, phi_Pad, A_Flr = data["U_Pad"], data["phi_Pad"], data["A_Flr"]
 
 	f_Pad = U_Pad * phi_Pad / A_Flr
 	return f_Pad * (CO2_Out - CO2_Air)
@@ -80,8 +78,8 @@ def MC_Pad_Air(data, CO2_Air):
 
 def MC_Air_Top(data, CO2_Air, CO2_Top):
 
-	U_ThScr, K_ThScr, T_Air, T_Top = data.U_ThScr, data.K_ThScr, data.T_Air, data.T_Top
-	rho_Mean_Air, rho_Air, rho_Top = data.rho_Mean_Air, data.rho_Air, data.rho_Top
+	U_ThScr, K_ThScr, T_Air, T_Top = data["U_ThScr"], data["K_ThScr"], data["T_Air"], data["T_Top"]
+	rho_Mean_Air, rho_Air, rho_Top = data["rho_Mean_Air"], data["rho_Air"], data["rho_Top"]
 
 	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
 	f_ThScr += (1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * rho_Mean_Air) * (rho_Air - rho_Top))**0.5
@@ -90,16 +88,16 @@ def MC_Air_Top(data, CO2_Air, CO2_Top):
 ###############################################################################################
 
 def MC_Air_Out(data,CO2_Air):
-	CO2_Out = data.CO2_Out
+	CO2_Out = data["CO2_Out"]
 
 	return (f_Vent_Side(data) + f_Vent_Forced(data)) * (CO2_Air - CO2_Out)
 
 def f_Vent_Roof_Side(data, A_Roof):
 	global g
-	C_d, A_Flr = data.C_d,  data.A_Flr
-	U_Roof, U_Side, A_Side = data.U_Roof, data.U_Side, data.A_Side
-	h_Side_Roof, T_Air, T_Out, T_Mean_Air = data.h_Side_Roof, data.T_Air, data.T_Out, data.T_Mean_Air
-	C_w, v_wind = data.C_w, data.v_wind
+	C_d, A_Flr = data["C_d"],  data["A_Flr"]
+	U_Roof, U_Side, A_Side = data["U_Roof"], data["U_Side"], data["A_Side"]
+	h_Side_Roof, T_Air, T_Out, T_Mean_Air = data["h_Side_Roof"], data["T_Air"], data["T_Out"], data["T_Mean_Air"]
+	C_w, v_wind = data["C_w"], data["v_wind"]
 
 	m1 = C_d / A_Flr
 	m2 = (U_Roof * U_Side * A_Roof * A_Side)**2 / ((U_Roof * A_Roof)**2 + (U_Side * A_Side)**2)
@@ -109,12 +107,12 @@ def f_Vent_Roof_Side(data, A_Roof):
 	return m1 * (m2 + m3)**0.5
 
 def Compute_eta_Ins_Scr(data):
-	zeta_Ins_Scr = data.zeta_Ins_Scr
+	zeta_Ins_Scr = data["zeta_Ins_Scr"]
 
 	return zeta_Ins_Scr * (2 - zeta_Ins_Scr)
 
 def Compute_f_leakage(data):
-	v_wind, c_leakage = data.v_wind, data.c_leakage 
+	v_wind, c_leakage = data["v_wind"], data["c_leakage"] 
 
 	if v_wind < 0.25:
 		v_wind = 0.25
@@ -122,17 +120,17 @@ def Compute_f_leakage(data):
 	
 def f_Vent_Side(data):
 	global eta_Side_Thr
-	eta_Side, eta_Ins_Scr, f_leakage, U_ThScr = data.eta_Side, Compute_eta_Ins_Scr(data), Compute_f_leakage(data), data.U_ThScr
+	eta_Side, eta_Ins_Scr, f_leakage, U_ThScr = data["eta_Side"], Compute_eta_Ins_Scr(data), Compute_f_leakage(data), data["U_ThScr"]
 
 	f_2com_Vent_Side = f_Vent_Roof_Side(data,0)
 
 	if eta_Side >= eta_Side_Thr:
 		return eta_Ins_Scr * f_2com_Vent_Side + 0.5 * f_leakage
 	else:
-		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Side + (1 - U_ThScr) * f_Vent_Roof_Side(data,data.A_Roof) * eta_Side) + 0.5* f_leakage
+		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Side + (1 - U_ThScr) * f_Vent_Roof_Side(data,data["A_Roof"]) * eta_Side) + 0.5* f_leakage
 
 def f_Vent_Forced(data):
-	U_Vent_Forced, phi_Vent_Forced, A_Flr = data.U_Vent_Forced, data.phi_Vent_Forced, data.A_Flr
+	U_Vent_Forced, phi_Vent_Forced, A_Flr = data["U_Vent_Forced"], data["phi_Vent_Forced"], data["A_Flr"]
 
 	return (Compute_eta_Ins_Scr(data) * U_Vent_Forced * phi_Vent_Forced) / A_Flr
 
@@ -141,13 +139,13 @@ def f_Vent_Forced(data):
 ###############################################################################################
 
 def MC_Top_Out(data, CO2_Top):
-	CO2_Out = data.CO2_Out
+	CO2_Out = data["CO2_Out"]
 
 	return f_Vent_Roof(data) * (CO2_Top - CO2_Out)
 
 def f_Vent_Roof(data):
 	global eta_Roof_Thr
-	eta_Side, eta_Roof, U_ThScr, f_leakage = data.eta_Side, data.eta_Roof, data.U_ThScr, Compute_f_leakage(data)
+	eta_Side, eta_Roof, U_ThScr, f_leakage = data["eta_Side"], data["eta_Roof"], data["U_ThScr"], Compute_f_leakage(data)
 
 	if eta_Roof >= eta_Roof_Thr:
 		return eta_Ins_Scr * f_2com_Vent_Roof(data) + 0.5 * f_leakage
@@ -155,9 +153,9 @@ def f_Vent_Roof(data):
 		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data) * eta_Side) + 0.5* f_leakage
 
 def f_2com_Vent_Roof(data):
-	C_d, U_Roof, A_Roof, A_Flr = data.C_d, data.U_Roof, data.A_Roof, data.A_Flr
-	g, h_Roof, T_Air, T_Out, T_Mean_Air = data.g, data.h_Roof, data.T_Air, data.T_Out, data.T_Mean_Air
-	C_w, v_wind = data.C_w, data.v_wind
+	C_d, U_Roof, A_Roof, A_Flr = data["C_d"], data["U_Roof"], data["A_Roof"], data["A_Flr"]
+	g, h_Roof, T_Air, T_Out, T_Mean_Air = data["g"], data["h_Roof"], data["T_Air"], data["T_Out"], data["T_Mean_Air"]
+	C_w, v_wind = data["C_w"], data["v_wind"]
 
 	m1 = C_d * U_Roof * A_Roof / (2 * A_Flr)
 	m2 = g * h_Roof * (T_Air - T_Out) / (2 * T_Mean_Air)
@@ -167,7 +165,7 @@ def f_2com_Vent_Roof(data):
 ###############################################################################################
 
 def MC_Air_Can(data):
-	M_CH2O, P, R = data.M_CH2O, PhotoSynth(data), PhotoRespi(data)
+	M_CH2O, P, R = data["M_CH2O"], data["P"], data["R"]
 
 	return M_CH2O * h_C_Buf * (P - R)
 
@@ -191,7 +189,7 @@ def JTrans(data):
 	return J / (2 * Theta)
 
 def JPotent(data):
-	T_Can, LAI = data.T_Can, data.LAI
+	T_Can, LAI = data["T_Can"], data["LAI"]
 	J_MAX_25_Can = LAI * J_MAX_25_Leaf
 
 	exp1 = E_j * (T_Can - T_25_K) / (R_gas * T_Can * T_25_K)
@@ -208,10 +206,10 @@ def JPotent(data):
 	return J_MAX_25_Can * exp1 * exp2 / exp3
 
 def CO2Stomata(data):
-	return n_CO2_Air_Stom * data.CO2_Air
+	return n_CO2_Air_Stom * data["CO2_Air"]
 
 def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
-	T_Can, LAI = data.T_Can, data.LAI
+	T_Can, LAI = data["T_Can"], data["LAI"]
 
 	return C_Gamma * T_Can / LAI + 20 * C_Gamma * (1 - 1 / LAI)
 
