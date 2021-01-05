@@ -10,7 +10,7 @@ def euler(t0, x0, y0, h, t):
         K2y=h*dxCO2_Top(data, x0+K1x, y0+K1y)
         x0=x0+1.0/2.0*(K1x+K2x)
         y0=y0+1.0/2.0*(K1y+K2y)
-    return y0
+    return x0, y0
 
 def rk4(t0, x0, y0, h, t):
     n=int((t-t0)/h)
@@ -25,6 +25,7 @@ def rk4(t0, x0, y0, h, t):
         K4y=h*dxCO2_Top(data, x0+K3x, y0+K3y)
         x0=x0+1.0/6.0*(K1x+2*K2x+2*K3x+K4x)
         y0=y0+1.0/6.0*(K1y+2*K2y+2*K3y+K4y)
-    return y0
+    return x0, y0
 
-print(rk4(0, 490,490, 0.5, 5))
+for i in range(1, 20):
+    print(rk4(0,443,443,0.5,5*i))

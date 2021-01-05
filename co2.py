@@ -29,26 +29,26 @@ data["C_d"], data["C_w"] = Compute_C(0.75, 0.1), Compute_C(0.09, 0.1)
 
 data["K_ThScr"] = 0.25 * 10 ** -3
 data["zeta_Ins_Scr"] = 1.0
-data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 19.9, 17.8, 20.9, 20.9, (19.9+17.8)/2
+data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 18+273.15, 15.8+273.15, 19.9+273.15, 19.9+273.15, (18+15.8)/2+273.15
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
-data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = [0.5]*7
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.5, 0.1, 0.0, 0.1, 0.9, 0.2,0.1
 data["c_leakage"] = 1 * 10 ** - 4
 data["v_wind"] = 3.2
-data["M_CH2O"] = 30
+data["M_CH2O"] = 30*(10**-3)
 data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 0, 0, 7.2 * (10 ** 4)
-data["P_Blow"] = 500
+data["P_Blow"] = 0.5*(10**6)
 data["LAI"] = 3.0
 data["CO2_Out"] = 668
 data["eta_Side"], data["eta_Roof"] = eta_Side_Thr, eta_Roof_Thr
 
 def Compute_rho(T):
-	p = 101
+	p = 101*1000
 	R = 287.058
 	return p/(R*T)
 
 data["rho_Air"] = Compute_rho(data["T_Air"]) 
 data["rho_Top"] = Compute_rho(data["T_Top"])
-data["rho_Mean_Air"] =  Compute_rho(data["T_Mean_Air"])
+data["rho_Mean_Air"] =  (data["rho_Air"]+data["rho_Top"])/2
 data["PAR_Can"] = 100
 
 
@@ -90,9 +90,8 @@ def MC_Air_Top(data, CO2_Air, CO2_Top):
 
 	U_ThScr, K_ThScr, T_Air, T_Top = data["U_ThScr"], data["K_ThScr"], data["T_Air"], data["T_Top"]
 	rho_Mean_Air, rho_Air, rho_Top = data["rho_Mean_Air"], data["rho_Air"], data["rho_Top"]
-
 	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
-	f_ThScr += (1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * rho_Mean_Air) * (rho_Air - rho_Top))**0.5
+	f_ThScr += ((1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * rho_Mean_Air) * abs(rho_Air - rho_Top))**0.5)
 	return f_ThScr * (CO2_Air - CO2_Top)
 
 ###############################################################################################
@@ -160,7 +159,7 @@ def f_Vent_Roof(data):
 	if eta_Roof >= eta_Roof_Thr:
 		return eta_Ins_Scr * f_2com_Vent_Roof(data) + 0.5 * f_leakage
 	else:
-		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data) * eta_Side) + 0.5* f_leakage
+		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data, data["A_Roof"]) * eta_Side) + 0.5* f_leakage
 
 def f_2com_Vent_Roof(data):
 	global g
