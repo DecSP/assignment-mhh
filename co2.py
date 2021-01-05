@@ -19,7 +19,7 @@ eta_Side_Thr=0.9
 data = {}
 
 # Data initialization
-data["A_Flr"], data["A_Side"] = 7.8 * (10 ** 4) , 0
+data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
 data["A_Roof"] = 0.1 * data["A_Flr"]
 def Compute_C(GH_C,eta_Sh_Scr_C):
 	U_Sh = 1
@@ -228,13 +228,10 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 ###############################################################################################
 
 def dxCO2_Air(data, CO2_Air, CO2_Top):
-	capCO2_Air = 4.2 - 3.8
+	capCO2_Air = 3.8
 	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
-	capCO2_Top = 3.8
+	capCO2_Top = 4.2-3.8
 	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
 	
-
-print(dxCO2_Top(data,10,10))
-print(dxCO2_Air(data,10,10))
