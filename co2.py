@@ -4,21 +4,36 @@ from math import *
 data = {}
 
 # Data initialization
-data["A_Flr"], data["A_Side"] = 
-data["C_d"], data["C_w"] = 
-data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 
-data["K_ThScr"] = 
-data["P_Blow"] = 
-data["zeta_Ins_Scr"] = 
-data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 
-data["h_Roof"], data["h_C_Buf"], data["h_Side_Roof"] = 
-data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 
-data["c_leakage"], data["f_leakage"] = 
-data["v_wind"] = 
+data["A_Flr"], data["A_Side"] = 7.8 * (10 ** 4) , 0
+data["A_Roof"] = 0.1 * data["A_Flr"]
 
-data["rho_Air"] =  
-data["rho_Top"] =  
-data["rho_Mean_Air"] =  
+def Compute_C(GH_C):
+	eta_Sh_Scr_Cd = ?
+	U_Sh = ?
+	return GH_C * (1 - eta_Sh_Scr_Cd * U_Sh)
+
+data["C_d"], data["C_w"] = Compute_C(0.75), Compute_C(0.09)
+
+data["K_ThScr"] = 0.25 * 10 ** -3
+data["zeta_Ins_Scr"] = 1.0
+data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 19.9, 17.8, 20.9, 20.9, (19.9+17.8)/2
+data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = [0.5]*7
+data["c_leakage"] = 1 * 10 ** - 4
+data["v_wind"] = 3.2
+data["M_CH2O"] = 30
+data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = x, x, 7.2 * (10 ** 4)
+data["P_Blow"] = x
+data["LAI"] = 
+
+def Compute_rho(T):
+	p = 101
+	R = 287.058
+	return p/(R*T)
+
+data["rho_Air"] = Compute_rho(data["T_Air"]) 
+data["rho_Top"] = Compute_rho(data["T_Top"])
+data["rho_Mean_Air"] =  Compute_rho(data["T_Mean_Air"])
 
 
 ## main code ##
@@ -153,21 +168,23 @@ def f_Vent_Roof(data):
 		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data) * eta_Side) + 0.5* f_leakage
 
 def f_2com_Vent_Roof(data):
+	global g
+	
 	C_d, U_Roof, A_Roof, A_Flr = data["C_d"], data["U_Roof"], data["A_Roof"], data["A_Flr"]
-	g, h_Roof, T_Air, T_Out, T_Mean_Air = data["g"], data["h_Roof"], data["T_Air"], data["T_Out"], data["T_Mean_Air"]
+	h_Vent, T_Air, T_Out, T_Mean_Air = data["h_Vent"], data["T_Air"], data["T_Out"], data["T_Mean_Air"]
 	C_w, v_wind = data["C_w"], data["v_wind"]
 
 	m1 = C_d * U_Roof * A_Roof / (2 * A_Flr)
-	m2 = g * h_Roof * (T_Air - T_Out) / (2 * T_Mean_Air)
+	m2 = g * h_Vent * (T_Air - T_Out) / (2 * T_Mean_Air)
 	m3 = C_w * v_wind**2
 	return m1 * (m2 + m3) ** 0.5
 
 ###############################################################################################
 
 def MC_Air_Can(data):
-	M_CH2O, P, R = data["M_CH2O"], data["P"], data["R"]
+	M_CH2O, P, R = data["M_CH2O"], PhotoSynth(data), PhotoRespi(data)
 
-	return M_CH2O * h_C_Buf * (P - R)
+	return M_CH2O * data["h_C_Buf"] * (P - R)
 
 ###############################################################################################
 
