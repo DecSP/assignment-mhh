@@ -18,5 +18,12 @@ A_Side=0
 C_d=Gh_C_d(1-eta_Sh_Scr_Cd*U_Sh)
 Gh_C_d=0.75
 eta_Sh_Scr_Cd=x
-Gh_C_w0.09
+Gh_C_w=0.09
 eta_Sh_Scr_Cw=x
+
+
+#tinh RHO_Air
+RHO_Air=p/(R*(273+T_Air)) #p=101*10^3, R=287.058
+#tuong tu Rho_Out
+Rho_air_mean=(RHO_Air+rho_out)/2
+
