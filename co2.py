@@ -21,7 +21,6 @@ data = {}
 # Data initialization
 data["A_Flr"], data["A_Side"] = 7.8 * (10 ** 4) , 0
 data["A_Roof"] = 0.1 * data["A_Flr"]
-
 def Compute_C(GH_C,eta_Sh_Scr_C):
 	U_Sh = 1
 	return GH_C * (1 - eta_Sh_Scr_C * U_Sh)
@@ -40,7 +39,6 @@ data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 0, 0, 7.2 * (10 
 data["P_Blow"] = 500
 data["LAI"] = 3.0
 data["CO2_Out"] = 668
-
 data["eta_Side"], data["eta_Roof"] = eta_Side_Thr, eta_Roof_Thr
 
 def Compute_rho(T):
@@ -51,6 +49,7 @@ def Compute_rho(T):
 data["rho_Air"] = Compute_rho(data["T_Air"]) 
 data["rho_Top"] = Compute_rho(data["T_Top"])
 data["rho_Mean_Air"] =  Compute_rho(data["T_Mean_Air"])
+data["PAR_Can"] = 100
 
 
 
@@ -78,7 +77,7 @@ def MC_Ext_Air(data):
 ###############################################################################################
 
 def MC_Pad_Air(data, CO2_Air):
-	U_Pad, phi_Pad, A_Flr = data["U_Pad"], data["phi_Pad"], data["A_Flr"]
+	U_Pad, phi_Pad, A_Flr, CO2_Out = data["U_Pad"], data["phi_Pad"], data["A_Flr"], data["CO2_Out"]
 
 	f_Pad = U_Pad * phi_Pad / A_Flr
 	return f_Pad * (CO2_Out - CO2_Air)
@@ -106,7 +105,7 @@ def MC_Air_Out(data,CO2_Air):
 def f_Vent_Roof_Side(data, A_Roof):
 	global g
 	C_d, A_Flr = data["C_d"],  data["A_Flr"]
-	U_Roof, U_Side, A_Side = data["U_Roof"], data["U_Side"], data["A_Side"]
+	U_Roof, U_Side, A_Side, A_Roof = data["U_Roof"], data["U_Side"], data["A_Side"], data["A_Roof"]
 	h_Side_Roof, T_Air, T_Out, T_Mean_Air = data["h_Side_Roof"], data["T_Air"], data["T_Out"], data["T_Mean_Air"]
 	C_w, v_wind = data["C_w"], data["v_wind"]
 
@@ -177,25 +176,25 @@ def f_2com_Vent_Roof(data):
 
 ###############################################################################################
 
-def MC_Air_Can(data):
-	M_CH2O, P, R = data["M_CH2O"], PhotoSynth(data), PhotoRespi(data)
+def MC_Air_Can(data,CO2_Air):
+	M_CH2O, P, R = data["M_CH2O"], PhotoSynth(data,CO2_Air), PhotoRespi(data, CO2_Air)
 
 	return M_CH2O * data["h_C_Buf"] * (P - R)
 
 ###############################################################################################
 
-def PhotoSynth(data):
+def PhotoSynth(data,CO2_Air):
 	Gamma = GComp(data)
-	CO2_Stom = CO2Stomata(data)
+	CO2_Stom = CO2Stomata(data,CO2_Air)
 	P = JTrans(data) * (CO2_Stom - Gamma)
 	P /= 4 * (CO2_Stom + 2 * Gamma)
 	return P
 
-def PhotoRespi(data):
-	return PhotoSynth(data) * GComp(data) / CO2Stomata(data)
+def PhotoRespi(data, CO2_Air):
+	return PhotoSynth(data,CO2_Air) * GComp(data) / CO2Stomata(data, CO2_Air)
 
 def JTrans(data):
-	aP = alpha * PAR_Can
+	aP = alpha * data["PAR_Can"]
 	J_Pot = JPotent(data)
 	J = J_Pot + aP - ((J_Pot + aP)**2 - 4 * Theta * J_Pot * aP)**0.5
 
@@ -218,8 +217,8 @@ def JPotent(data):
 	
 	return J_MAX_25_Can * exp1 * exp2 / exp3
 
-def CO2Stomata(data):
-	return n_CO2_Air_Stom * data["CO2_Air"]
+def CO2Stomata(data, CO2_Air):
+	return n_CO2_Air_Stom * CO2_Air
 
 def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 	T_Can, LAI = data["T_Can"], data["LAI"]
@@ -229,11 +228,11 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 ###############################################################################################
 
 def dxCO2_Air(data, CO2_Air, CO2_Top):
-
-	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
+	capCO2_Air = 4.2 - 3.8
+	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
-
+	capCO2_Top = 3.8
 	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
 	
 
