@@ -6,7 +6,7 @@ def euler(t0, x0, y0, h, t, numCycleUpdate = 60, startIndex = 2):
     re=[]
     for i in range(n):
         if i%numCycleUpdate == 0: 
-            Compute_T(i//numCycleUpdate + startIndex)
+            update_data(i//numCycleUpdate + startIndex)
             re.append((x0,y0))
         K1x=h*dxCO2_Air(data,x0, y0)
         K1y=h*dxCO2_Top(data, x0,y0)
@@ -21,7 +21,7 @@ def rk4(t0, x0, y0, h, t, numCycleUpdate = 60, startIndex = 2):
     re = []
     for i in range (n):
         if i%numCycleUpdate == 0: 
-            Compute_T(i//numCycleUpdate + startIndex)
+            update_data(i//numCycleUpdate + startIndex)
             re.append((x0,y0))
         K1x=h*dxCO2_Air(data,x0, y0)
         K1y=h*dxCO2_Top(data, x0,y0)
@@ -35,6 +35,6 @@ def rk4(t0, x0, y0, h, t, numCycleUpdate = 60, startIndex = 2):
         y0=y0+1.0/6.0*(K1y+2*K2y+2*K3y+K4y)
     return re
 
-ans = rk4(0,443,443,5,12000)
+ans = rk4(0,427,449,5,12000)
 for state in ans:
     print(state)

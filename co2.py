@@ -27,28 +27,34 @@ meteo = pd.read_csv("meteo.csv")
 data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
 data["A_Roof"] = 0.1 * data["A_Flr"]
 def Compute_C(GH_C,eta_Sh_Scr_C):
-	U_Sh = 1
+	U_Sh = 0
 	return GH_C * (1 - eta_Sh_Scr_C * U_Sh)
 
-data["C_d"], data["C_w"] = Compute_C(0.75, 0.1), Compute_C(0.09, 0.1)
+data["C_d"], data["C_w"] = Compute_C(0.75, 0), Compute_C(0.09, 0)
 
 data["K_ThScr"] = 0.25 * 10 ** -3
 data["zeta_Ins_Scr"] = 1.0
 data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 18+273.15, 15.8+273.15, 19.9+273.15, 19.9+273.15, (18+15.8)/2+273.15
 
-def Compute_T(time):
+def update_data(time):
 	data["T_Air"] = climate.Tair[time] + 273.15
 	data["T_Out"] = meteo.Tout[time] +273.15
 	data["T_Can"] = data["T_Air"] + 1
 	data["T_Top"] = data["T_Can"]
 	data["T_Mean_Air"] = (data["T_Air"] + data["T_Out"])/2
+	# data["U_Side"] = climate.VentLee[time]/100
+	# data["U_Vent_Forced"] = climate.Ventwind[time]/100
+	data["v_wind"] = meteo.Windsp[time]
+	data["rho_Air"] = Compute_rho(data["T_Air"]) 
+	data["rho_Top"] = Compute_rho(data["T_Top"])
+	data["rho_Mean_Air"] =  (data["rho_Air"]+data["rho_Top"])/2
 
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
 data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.5, 0.1, 0.0, 0.1, 0.9, 0.2,0.1
 data["c_leakage"] = 1 * 10 ** - 4
 data["v_wind"] = 3.2
 data["M_CH2O"] = 30*(10**-3)
-data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 7.2 * (10 ** 4), 0, 7.2 * (10 ** 4)
+data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 0.1, 0, 7.2 * (10 ** 4)
 data["P_Blow"] = 0.5*(10**6)
 data["LAI"] = 3.0
 data["CO2_Out"] = 668
@@ -245,7 +251,7 @@ def dxCO2_Air(data, CO2_Air, CO2_Top):
 	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
-	capCO2_Top = 4.2-3.8
+	capCO2_Top = 0.4
 
 	# print(MC_Air_Top(data, CO2_Air, CO2_Top) , MC_Top_Out(data, CO2_Top))
 	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
