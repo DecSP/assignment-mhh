@@ -22,6 +22,8 @@ data = {}
 # Read file
 climate = pd.read_csv('Greenhouse_climate.csv')
 meteo = pd.read_csv("meteo.csv")
+# climate = climate.dropna(how="any")
+# meteo = meteo.dropna(how="any")
 
 # Data initialization
 data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
