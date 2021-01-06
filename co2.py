@@ -52,7 +52,7 @@ def update_data(time):
 	data["rho_Mean_Air"] =  (data["rho_Air"]+data["rho_Top"])/2
 
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
-data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.1, 0.1, 0.0, 0.1, 0.1,0.8,0.1
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.1, 0.1, 0.0, 0.1, 0.9,0.8,0.1
 data["c_leakage"] = 1 * 10 ** - 4
 data["v_wind"] = 3.2
 data["M_CH2O"] = 30*(10**-3)
