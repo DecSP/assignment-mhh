@@ -13,7 +13,7 @@ data["eta_Pad"] = 0.0
 data["Rh_Out"] = 81.7 # Get this from csv, dynamic variable
 
 def Compute_VP(T, Rh):
-    P_Sat = 610.78 × exp(T / (T + 238.3) * 17.2694)
+    P_Sat = 610.78 * exp(T / (T + 238.3) * 17.2694)
 
     return Rh * P_Sat
 
