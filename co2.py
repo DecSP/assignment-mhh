@@ -18,8 +18,10 @@ eta_Roof_Thr=0.9
 eta_Side_Thr=0.9
 
 data = {}
+
 # Read file
 climate = pd.read_csv('Greenhouse_climate.csv')
+meteo = pd.read_csv("meteo.csv")
 
 # Data initialization
 data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
@@ -34,8 +36,12 @@ data["K_ThScr"] = 0.25 * 10 ** -3
 data["zeta_Ins_Scr"] = 1.0
 data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 18+273.15, 15.8+273.15, 19.9+273.15, 19.9+273.15, (18+15.8)/2+273.15
 
-def Compute_T_Air(time):
+def Compute_T(time):
 	data["T_Air"] = climate.Tair[time] + 273.15
+	data["T_Out"] = meteo.Tout[time] +273.15
+	data["T_Can"] = data["T_Air"] + 1
+	data["T_Top"] = data["T_Can"]
+	data["T_Mean_Air"] = (data["T_Air"] + data["T_Out"])/2
 
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
 data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.5, 0.1, 0.0, 0.1, 0.9, 0.2,0.1
