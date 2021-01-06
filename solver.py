@@ -25,7 +25,9 @@ def rk4(t0, x0, y0, h, t):
         K4y=h*dxCO2_Top(data, x0+K3x, y0+K3y)
         x0=x0+1.0/6.0*(K1x+2*K2x+2*K3x+K4x)
         y0=y0+1.0/6.0*(K1y+2*K2y+2*K3y+K4y)
-    return x0, y0
+    return x0,y0
 
 for i in range(1, 20):
-    print(rk4(0,443,443,0.5,5*i))
+    Compute_T_Air(i+1)
+    # print(data["T_Air"])
+    print(euler (0,443,443,5,20*i))

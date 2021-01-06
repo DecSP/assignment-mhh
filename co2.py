@@ -1,4 +1,5 @@
 from math import *
+import pandas as pd
 # Global constants (apply to all model)
 g = 9.81
 alpha = 0.385
@@ -17,6 +18,8 @@ eta_Roof_Thr=0.9
 eta_Side_Thr=0.9
 
 data = {}
+# Read file
+climate = pd.read_csv('Greenhouse_climate.csv')
 
 # Data initialization
 data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
@@ -30,12 +33,16 @@ data["C_d"], data["C_w"] = Compute_C(0.75, 0.1), Compute_C(0.09, 0.1)
 data["K_ThScr"] = 0.25 * 10 ** -3
 data["zeta_Ins_Scr"] = 1.0
 data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] = 18+273.15, 15.8+273.15, 19.9+273.15, 19.9+273.15, (18+15.8)/2+273.15
+
+def Compute_T_Air(time):
+	data["T_Air"] = climate.Tair[time] + 273.15
+
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
 data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.5, 0.1, 0.0, 0.1, 0.9, 0.2,0.1
 data["c_leakage"] = 1 * 10 ** - 4
 data["v_wind"] = 3.2
 data["M_CH2O"] = 30*(10**-3)
-data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 0, 0, 7.2 * (10 ** 4)
+data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 7.2 * (10 ** 4), 0, 7.2 * (10 ** 4)
 data["P_Blow"] = 0.5*(10**6)
 data["LAI"] = 3.0
 data["CO2_Out"] = 668
@@ -228,9 +235,12 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 
 def dxCO2_Air(data, CO2_Air, CO2_Top):
 	capCO2_Air = 3.8
+	# print ( MC_Pad_Air(data, CO2_Air) ,"h", MC_Air_Can(data, CO2_Air),"n" , MC_Air_Top(data, CO2_Air, CO2_Top),"u",MC_Air_Out(data, CO2_Air))
 	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
 	capCO2_Top = 4.2-3.8
+
+	# print(MC_Air_Top(data, CO2_Air, CO2_Top) , MC_Top_Out(data, CO2_Top))
 	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
 	
