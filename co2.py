@@ -50,15 +50,15 @@ def update_data(time):
 	data["rho_Mean_Air"] =  (data["rho_Air"]+data["rho_Top"])/2
 
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
-data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.5, 0.1, 0.0, 0.1, 0.9, 0.2,0.1
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.1, 0.1, 0.0, 0.1, 0.1,0.8,0.1
 data["c_leakage"] = 1 * 10 ** - 4
 data["v_wind"] = 3.2
 data["M_CH2O"] = 30*(10**-3)
 data["phi_Pad"], data["phi_Vent_Forced"], data["phi_Ext_CO2"] = 0.1, 0, 7.2 * (10 ** 4)
 data["P_Blow"] = 0.5*(10**6)
-data["LAI"] = 3.0
+data["LAI"] = 2.0
 data["CO2_Out"] = 668
-data["eta_Side"], data["eta_Roof"] = eta_Side_Thr, eta_Roof_Thr
+data["eta_Side"], data["eta_Roof"] = 1,0
 
 def Compute_rho(T):
 	p = 101*1000
