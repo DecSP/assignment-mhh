@@ -10,7 +10,10 @@ s_MV_1_2 = -0.1
 M_Water = 18
 
 data["eta_Pad"] = 0.0
+data["eta_HeatVap"] = 4.43 * 10 ** -8
 data["Rh_Out"] = 81.7 # Get this from csv, dynamic variable
+data["U_Fog"] = 0.0
+data["phi_Fog"] = 0.0
 
 def Compute_VP(T, Rh):
     P_Sat = 610.78 * exp(T / (T + 238.3) * 17.2694)
@@ -26,6 +29,42 @@ def MV_Air_Object(data, VP_1, VP_2, HEC_1_2):
     m2 = 6.4 * 10 ** -9 * HEC_1_2 * (VP_1 - VP_2)
 
     return m1 * m2
+
+###############################################################################################
+
+def MV_Can_Air(data, VP_Air):
+    return VEC_Can_Air(data) * (0)
+
+def VEC_Can_Air(data):
+    R_S = R_S_min
+
+    return (2 * data["rho_Air"] * c_p_Air * data["LAI"]) / (Delta_H * gamma * (R_B + R_S))
+
+###############################################################################################
+
+def MV_Fog_Air(data, VP_Air):
+    U_Fog, phi_Fog, A_Flr = data["U_Fog"], data["phi_Fog"], data["A_Flr"]
+
+    return U_Fog * phi_Fog / A_Flr
+
+###############################################################################################
+
+def MV_Pad_Air(data):
+    rho_Air, U_Pad, phi_Pad, A_Flr, eta_Pad = data["rho_Air"], data["U_Pad"], data["phi_Pad"], data["A_Flr"], data["eta_Pad"]
+    x_Pad, x_Out = data["x_Pad"], data["x_Out"]
+
+    f_Pad = U_Pad * phi_Pad / A_Flr
+
+    return rho_Air * f_Pad * (eta_Pad * (x_Pad - x_Out) + x_Out)
+
+###############################################################################################
+
+def MV_Blow_Air(data):
+    U_Blow, P_Blow, A_Flr, eta_HeatVap = data["U_Blow"], data["P_Blow"], data["A_Flr"], data["eta_HeatVap"]
+
+    H_Blow_Air = U_Blow * P_Blow / A_Flr
+
+    return eta_HeatVap * H_Blow_Air
 
 ###############################################################################################
 
@@ -51,30 +90,19 @@ def MV_Air_Out(data, VP_Air):
 
 ###############################################################################################
 
-def MV_Can_Air(data, VP_Air):
-    return VEC_Can_Air(data) * (0)
-
-def VEC_Can_Air(data):
-    R_S = R_S_min
-
-    return (2 * data["rho_Air"] * c_p_Air * data["LAI"]) / (Delta_H * gamma * (R_B + R_S))
-
-###############################################################################################
-
-def MV_Pad_Air(data):
-    rho_Air, U_Pad, phi_Pad, A_Flr, eta_Pad = data["rho_Air"], data["U_Pad"], data["phi_Pad"], data["A_Flr"], data["eta_Pad"]
-    x_Pad, x_Out = data["x_Pad"], data["x_Out"]
-
-    f_Pad = U_Pad * phi_Pad / A_Flr
-
-    return rho_Air * f_Pad * (eta_Pad * (x_Pad - x_Out) + x_Out)
-
-###############################################################################################
-
 def MV_AirOut_Pad(data, VP_Air):
     global R_gas, M_Water
-    T_Air = data["T_Air"]
+    T_Air, U_Pad, phi_Pad, A_Flr = data["T_Air"], data["U_Pad"], data["phi_Pad"], data["A_Flr"]
 
     f_Pad = U_Pad * phi_Pad / A_Flr
 
     return f_Pad * (M_Water / R_gas) * (VP_Air / T_Air)
+
+###############################################################################################
+
+def MV_Mech_Air(data, VP_Air):
+
+
+def HEC_Mech_Air(data, VP_Air):
+    U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, Delta_H, VP_MechCool
+    
