@@ -14,6 +14,8 @@ data["eta_HeatVap"] = 4.43 * 10 ** -8
 data["Rh_Out"] = 81.7 # Get this from csv, dynamic variable
 data["U_Fog"] = 0.0
 data["phi_Fog"] = 0.0
+data["c_HECin"] = 1.86
+data["A_Cov"] = 1.8 * 10 ** 4
 
 def Compute_VP(T, Rh):
     P_Sat = 610.78 * exp(T / (T + 238.3) * 17.2694)
@@ -32,20 +34,13 @@ def MV_Air_Object(data, VP_1, VP_2, HEC_1_2):
 
 ###############################################################################################
 
-def MV_Can_Air(data, VP_Air):
+def MV_Can_Air(data):
     return VEC_Can_Air(data) * (0)
 
 def VEC_Can_Air(data):
     R_S = R_S_min
 
     return (2 * data["rho_Air"] * c_p_Air * data["LAI"]) / (Delta_H * gamma * (R_B + R_S))
-
-###############################################################################################
-
-def MV_Fog_Air(data, VP_Air):
-    U_Fog, phi_Fog, A_Flr = data["U_Fog"], data["phi_Fog"], data["A_Flr"]
-
-    return U_Fog * phi_Fog / A_Flr
 
 ###############################################################################################
 
@@ -59,12 +54,27 @@ def MV_Pad_Air(data):
 
 ###############################################################################################
 
+def MV_Fog_Air(data, VP_Air):
+    U_Fog, phi_Fog, A_Flr = data["U_Fog"], data["phi_Fog"], data["A_Flr"]
+
+    return U_Fog * phi_Fog / A_Flr
+
+###############################################################################################
+
 def MV_Blow_Air(data):
     U_Blow, P_Blow, A_Flr, eta_HeatVap = data["U_Blow"], data["P_Blow"], data["A_Flr"], data["eta_HeatVap"]
 
     H_Blow_Air = U_Blow * P_Blow / A_Flr
 
     return eta_HeatVap * H_Blow_Air
+
+###############################################################################################
+
+def MV_Air_ThScr(data, VP_Air):
+    return MV_Air_Object(data, VP_Air, data["VP_ThScr"], HEC_Air_ThScr(data))
+
+def HEC_Air_ThScr(data):
+    return 1.7 * data["U_ThScr"] * abs(data["T_Air"] - data["T_ThScr"]) ** 0.33
 
 ###############################################################################################
 
@@ -100,9 +110,43 @@ def MV_AirOut_Pad(data, VP_Air):
 
 ###############################################################################################
 
-def MV_Mech_Air(data, VP_Air):
-
+def MV_Air_Mech(data, VP_Air):
+    return MV_Air_Object(data, VP_Air, data["VP_MechCool"], -HEC_Mech_Air(data, VP_Air))
 
 def HEC_Mech_Air(data, VP_Air):
-    U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, Delta_H, VP_MechCool
+    U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, Delta_H, VP_MechCool = data["U_MechCool"], data["COP_MechCool"], data["P_MechCool"], data["A_Flr"], data["T_Air"], data["T_MechCool"], data["Delta_H"], data["VP_MechCool"]
     
+    m1 = U_MechCool * COP_MechCool * P_MechCool / A_Flr
+    m2 = T_Air - T_MechCool + 6.4 * 10 ** -9 * Delta_H * (VP_Air - VP_MechCool)
+
+    return m1 / m2
+
+###############################################################################################
+
+def MV_Top_CovIn(data, VP_Top):
+    return MV_Air_Object(data, VP_Top, data["VP_CovIn"], HEC_Top_CovIn(data, VP_Top))
+
+def HEC_Top_CovIn(data, VP_Top):
+    c_HECin, T_Top, T_CovIn, A_Cov, A_Flr = data["c_HECin"], data["T_Top"], data["T_CovIn"], data["A_Cov"], data["A_Cov"]
+    
+    return c_HECin * (T_Top - T_CovIn) ** 0.33 * A_Cov / A_Flr
+
+###############################################################################################
+
+def MV_Top_Out(data, VP_Top):
+    global R_gas, M_Water
+    VP_Out, T_Top, T_Out = data["VP_Out"], data["T_Top"], data["T_Out"]
+
+    return (M_Water / R_gas) * f_Vent_Roof(data) * (VP_Top / T_Top - VP_Out / T_Out)
+
+###############################################################################################
+
+def dxVP_Air(data, VP_Air, VP_Top):
+    capVP_Air = 3.8
+	
+    return (MV_Can_Air(data) + MV_Pad_Air(data) + MV_Fog_Air(data, VP_Air) + MV_Blow_Air(data) - MV_Air_ThScr(data, VP_Air) - MV_Air_Top(data, VP_Air, VP_Top) - MV_Air_Out(data, VP_Air) - MV_AirOut_Pad(data, VP_Air) - MV_Air_Mech(data, VP_Air)) / capVP_Air
+
+def dxVP_Top(data, VP_Air, VP_Top):
+    capVP_Top = 0.4
+
+    return (MV_Air_Top(data, VP_Air, VP_Top) - MV_Top_CovIn(data, VP_Top) - MV_Top_Out(data, VP_Top)) / capVP_Top
