@@ -1,43 +1,6 @@
 from math import *
 from co2 import *
-
-# Global constants
-Delta_H = 2.45 * 10 ** 6
-c_p_Air = 1 * 10 ** 3
-gamma = 65.8
-R_B = 275
-s_MV_1_2 = -0.1
-M_Water = 18
-
-# Data initialization
-data["A_Cov"] = 1.8 * 10 ** 4
-data["c_HECin"] = 1.86
-
-# Control coefficients
-data["eta_Pad"] = 0
-data["eta_HeatVap"] = 4.43 * 10 ** -8
-data["U_Fog"] = 0.0
-data["U_MechCool"] = 0.0
-data["phi_Fog"] = 0.0
-data["COP_MechCool"], data["P_MechCool"] = 0, 0
-data["c_HECin"] = 0.0
-data["Rh_Out"] = 81.7 # Initiate this from csv, dynamic variable
-
-def Compute_VP(T, Rh):
-    P_Sat = 610.78 * exp((T - 273.15) / (T - 34.85) * 17.2694)
-
-    return Rh / 100 * P_Sat
-
-# Variable (update constantly)
-data["x_Pad"] = 0
-data["x_Out"] = data["Rh_Out"]
-data["T_ThScr"] = data["T_Air"] + 1
-data["T_MechCool"] = data["T_Air"]
-data["T_CovIn"] = data["T_Out"]
-data["VP_Out"] = Compute_VP(data["T_Out"], data["Rh_Out"])
-data["VP_ThScr"] = Compute_VP(data["T_ThScr"], data["Rh_Out"])
-data["VP_MechCool"] = Compute_VP(data["T_MechCool"], 0.0)
-data["VP_CovIn"] = Compute_VP(data["T_CovIn"], 0.0)
+from data import *
 
 ###############################################################################################
 
