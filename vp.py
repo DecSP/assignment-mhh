@@ -9,20 +9,35 @@ R_B = 275
 s_MV_1_2 = -0.1
 M_Water = 18
 
-data["eta_Pad"] = 0.0
-data["eta_HeatVap"] = 4.43 * 10 ** -8
-data["Rh_Out"] = 81.7 # Get this from csv, dynamic variable
-data["U_Fog"] = 0.0
-data["phi_Fog"] = 0.0
-data["c_HECin"] = 1.86
+# Data initialization
 data["A_Cov"] = 1.8 * 10 ** 4
+data["c_HECin"] = 1.86
+
+# Control coefficients
+data["eta_Pad"] = 0
+data["eta_HeatVap"] = 4.43 * 10 ** -8
+data["U_Fog"] = 0.0
+data["U_MechCool"] = 0.0
+data["phi_Fog"] = 0.0
+data["COP_MechCool"], data["P_MechCool"] = 0, 0
+data["c_HECin"] = 0.0
+data["Rh_Out"] = 81.7 # Initiate this from csv, dynamic variable
 
 def Compute_VP(T, Rh):
-    P_Sat = 610.78 * exp(T / (T + 238.3) * 17.2694)
+    P_Sat = 610.78 * exp((T - 273.15) / (T - 34.85) * 17.2694)
 
-    return Rh * P_Sat
+    return Rh / 100 * P_Sat
 
+# Variable (update constantly)
+data["x_Pad"] = 0
+data["x_Out"] = data["Rh_Out"]
+data["T_ThScr"] = data["T_Air"] + 1
+data["T_MechCool"] = data["T_Air"]
+data["T_CovIn"] = data["T_Out"]
 data["VP_Out"] = Compute_VP(data["T_Out"], data["Rh_Out"])
+data["VP_ThScr"] = Compute_VP(data["T_ThScr"], data["Rh_Out"])
+data["VP_MechCool"] = Compute_VP(data["T_MechCool"], 0.0)
+data["VP_CovIn"] = Compute_VP(data["T_CovIn"], 0.0)
 
 ###############################################################################################
 
@@ -114,7 +129,9 @@ def MV_Air_Mech(data, VP_Air):
     return MV_Air_Object(data, VP_Air, data["VP_MechCool"], -HEC_Mech_Air(data, VP_Air))
 
 def HEC_Mech_Air(data, VP_Air):
-    U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, Delta_H, VP_MechCool = data["U_MechCool"], data["COP_MechCool"], data["P_MechCool"], data["A_Flr"], data["T_Air"], data["T_MechCool"], data["Delta_H"], data["VP_MechCool"]
+    global Delta_H
+
+    U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, VP_MechCool = data["U_MechCool"], data["COP_MechCool"], data["P_MechCool"], data["A_Flr"], data["T_Air"], data["T_MechCool"], data["VP_MechCool"]
     
     m1 = U_MechCool * COP_MechCool * P_MechCool / A_Flr
     m2 = T_Air - T_MechCool + 6.4 * 10 ** -9 * Delta_H * (VP_Air - VP_MechCool)
