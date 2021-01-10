@@ -102,12 +102,12 @@ def MC_Top_Out(data, CO2_Top):
 
 def f_Vent_Roof(data):
 	global eta_Roof_Thr
-	eta_Side, eta_Roof, eta_Ins_Scr, U_ThScr, f_leakage = data["eta_Side"], data["eta_Roof"], Compute_eta_Ins_Scr(data), data["U_ThScr"], Compute_f_leakage(data)
+	eta_Roof, eta_Ins_Scr, U_ThScr, f_leakage = data["eta_Roof"], Compute_eta_Ins_Scr(data), data["U_ThScr"], Compute_f_leakage(data)
 
 	if eta_Roof >= eta_Roof_Thr:
 		return eta_Ins_Scr * f_2com_Vent_Roof(data) + 0.5 * f_leakage
 	else:
-		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data, data["A_Roof"]) * eta_Side) + 0.5* f_leakage
+		return eta_Ins_Scr * (U_ThScr * f_2com_Vent_Roof(data) + (1 - U_ThScr) * f_Vent_Roof_Side(data, data["A_Roof"]) * eta_Roof) + 0.5* f_leakage
 
 def f_2com_Vent_Roof(data):
 	global g

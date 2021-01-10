@@ -6,14 +6,14 @@ from data import *
 
 def MV_Air_Object(data, VP_1, VP_2, HEC_1_2):
     m1 = 1.0 / (1 + exp(s_MV_1_2 * (VP_1 - VP_2)))
-    m2 = 6.4 * 10 ** -9 * HEC_1_2 * (VP_1 - VP_2)
+    m2 = 6.4 * (10 ** -9) * HEC_1_2 * (VP_1 - VP_2)
 
     return m1 * m2
 
 ###############################################################################################
 
-def MV_Can_Air(data):
-    return VEC_Can_Air(data) * (0)
+def MV_Can_Air(data, VP_Air):
+    return VEC_Can_Air(data) * (Compute_VP(data["T_Can"], 100) - VP_Air)
 
 def VEC_Can_Air(data):
     R_S = R_S_min
@@ -97,7 +97,7 @@ def HEC_Mech_Air(data, VP_Air):
     U_MechCool, COP_MechCool, P_MechCool, A_Flr, T_Air, T_MechCool, VP_MechCool = data["U_MechCool"], data["COP_MechCool"], data["P_MechCool"], data["A_Flr"], data["T_Air"], data["T_MechCool"], data["VP_MechCool"]
     
     m1 = U_MechCool * COP_MechCool * P_MechCool / A_Flr
-    m2 = T_Air - T_MechCool + 6.4 * 10 ** -9 * Delta_H * (VP_Air - VP_MechCool)
+    m2 = T_Air - T_MechCool + 6.4 * (10 ** -9) * Delta_H * (VP_Air - VP_MechCool)
 
     return m1 / m2
 
@@ -122,11 +122,12 @@ def MV_Top_Out(data, VP_Top):
 ###############################################################################################
 
 def dxVP_Air(data, VP_Air, VP_Top):
-    capVP_Air = 3.8
+    global M_Water, R_gas
+    capVP_Air = M_Water * 3.8 / (R_gas * (10 ** -3) * data["T_Air"])
 	
-    return (MV_Can_Air(data) + MV_Pad_Air(data) + MV_Fog_Air(data, VP_Air) + MV_Blow_Air(data) - MV_Air_ThScr(data, VP_Air) - MV_Air_Top(data, VP_Air, VP_Top) - MV_Air_Out(data, VP_Air) - MV_AirOut_Pad(data, VP_Air) - MV_Air_Mech(data, VP_Air)) / capVP_Air
+    return (MV_Can_Air(data, VP_Air) + MV_Pad_Air(data) + MV_Fog_Air(data, VP_Air) + MV_Blow_Air(data) - MV_Air_ThScr(data, VP_Air) - MV_Air_Top(data, VP_Air, VP_Top) - MV_Air_Out(data, VP_Air) - MV_AirOut_Pad(data, VP_Air) - MV_Air_Mech(data, VP_Air)) / capVP_Air
 
 def dxVP_Top(data, VP_Air, VP_Top):
-    capVP_Top = 0.4
+    capVP_Top = M_Water * 0.4 / (R_gas * (10 ** -3) * data["T_Top"])
 
     return (MV_Air_Top(data, VP_Air, VP_Top) - MV_Top_CovIn(data, VP_Top) - MV_Top_Out(data, VP_Top)) / capVP_Top
