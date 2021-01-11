@@ -38,8 +38,9 @@ def MC_Air_Top(data, CO2_Air, CO2_Top):
 
 	U_ThScr, K_ThScr, T_Air, T_Top = data["U_ThScr"], data["K_ThScr"], data["T_Air"], data["T_Top"]
 	rho_Mean_Air, rho_Air, rho_Top = data["rho_Mean_Air"], data["rho_Air"], data["rho_Top"]
+	W = data["W_Gutter"]
 	f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
-	f_ThScr += ((1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * rho_Mean_Air) * abs(rho_Air - rho_Top))**0.5)
+	f_ThScr += ((1 - U_ThScr) * (g * (1 - U_ThScr) * W / (2 * rho_Mean_Air) * abs(rho_Air - rho_Top))**0.5)
 	return f_ThScr * (CO2_Air - CO2_Top)
 
 ###############################################################################################
@@ -175,13 +176,13 @@ def GComp(data):	# Use Eq. (9.23) (more complex) or Eq. (9.22) (simpler)?
 ###############################################################################################
 
 def dxCO2_Air(data, CO2_Air, CO2_Top):
-	capCO2_Air = 3.8
+	capCO2_Air = data["h_Air"]
 	# print ( MC_Pad_Air(data, CO2_Air) ,"h", MC_Air_Can(data, CO2_Air),"n" , MC_Air_Top(data, CO2_Air, CO2_Top),"u",MC_Air_Out(data, CO2_Air))
-	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air))/ capCO2_Air
+	return (MC_Blow_Air(data) + MC_Ext_Air(data) + MC_Pad_Air(data, CO2_Air) - MC_Air_Can(data, CO2_Air) - MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Air_Out(data, CO2_Air)) / capCO2_Air
 
 def dxCO2_Top(data, CO2_Air, CO2_Top):
-	capCO2_Top = 0.4
+	capCO2_Top = data["h_Gh"] - data["h_Air"]
 
 	# print(MC_Air_Top(data, CO2_Air, CO2_Top) , MC_Top_Out(data, CO2_Top))
-	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top))/ capCO2_Top
+	return (MC_Air_Top(data, CO2_Air, CO2_Top) - MC_Top_Out(data, CO2_Top)) / capCO2_Top
 	

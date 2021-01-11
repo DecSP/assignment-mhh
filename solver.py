@@ -46,7 +46,7 @@ def rk4N(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
         re.append((x0,y0))
     return re
 
-ans = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000)
+ans = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000) # 768.6
 air = []
 top = []
 for state in ans:
@@ -99,7 +99,7 @@ plt.legend()
 plt.savefig("VP_AirTop.png")
 plt.clf()
 plt.xlabel("time elapsed (mins)")
-plt.ylabel("Pressure (Pa))")
+plt.ylabel("Pressure (Pa)")
 plt.plot(xline, air, label = "VPair")
 plt.plot(xline, top, label = "VPtop")
 plt.title("Compare vapour pressure")

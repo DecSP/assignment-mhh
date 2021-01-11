@@ -10,6 +10,12 @@ def MV_Air_Object(data, VP_1, VP_2, HEC_1_2):
 
     return m1 * m2
 
+# def MV_Air_Object(data, VP_1, VP_2, HEC_1_2):
+#     if VP_1 < VP_2:
+#         return 0
+#     else:
+#         return 6.4 * (10 ** -9) * HEC_1_2 * (VP_1 - VP_2)
+
 ###############################################################################################
 
 def MV_Can_Air(data, VP_Air):
@@ -60,9 +66,10 @@ def MV_Air_Top(data, VP_Air, VP_Top):
     global R_gas, M_Water
     U_ThScr, K_ThScr, T_Air, T_Top = data["U_ThScr"], data["K_ThScr"], data["T_Air"], data["T_Top"]
     rho_Mean_Air, rho_Air, rho_Top = data["rho_Mean_Air"], data["rho_Air"], data["rho_Top"]
+    W = data["W_Gutter"]
 
     f_ThScr = U_ThScr * K_ThScr * abs(T_Air - T_Top)**(0.66) 
-    f_ThScr += ((1 - U_ThScr) * (g * (1 - U_ThScr) / (2 * rho_Mean_Air) * abs(rho_Air - rho_Top))**0.5)
+    f_ThScr += ((1 - U_ThScr) * (g * (1 - U_ThScr) * W / (2 * rho_Mean_Air) * abs(rho_Air - rho_Top))**0.5)
 
     return (M_Water / R_gas) * f_ThScr * (VP_Air / T_Air - VP_Top / T_Top)
 
@@ -123,11 +130,11 @@ def MV_Top_Out(data, VP_Top):
 
 def dxVP_Air(data, VP_Air, VP_Top):
     global M_Water, R_gas
-    capVP_Air = M_Water * 3.8 / (R_gas * (10 ** -3) * data["T_Air"])
+    capVP_Air = M_Water * data["h_Air"] / (R_gas * data["T_Air"])
 	
     return (MV_Can_Air(data, VP_Air) + MV_Pad_Air(data) + MV_Fog_Air(data, VP_Air) + MV_Blow_Air(data) - MV_Air_ThScr(data, VP_Air) - MV_Air_Top(data, VP_Air, VP_Top) - MV_Air_Out(data, VP_Air) - MV_AirOut_Pad(data, VP_Air) - MV_Air_Mech(data, VP_Air)) / capVP_Air
 
 def dxVP_Top(data, VP_Air, VP_Top):
-    capVP_Top = M_Water * 0.4 / (R_gas * (10 ** -3) * data["T_Top"])
+    capVP_Top = M_Water * (data["h_Gh"] - data["h_Air"]) / (R_gas * data["T_Top"])
 
     return (MV_Air_Top(data, VP_Air, VP_Top) - MV_Top_CovIn(data, VP_Top) - MV_Top_Out(data, VP_Top)) / capVP_Top

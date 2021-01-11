@@ -20,9 +20,9 @@ R_B = 275
 R_S_min = 82.0
 s_MV_1_2 = -0.1
 M_Water = 18
-eta_Heat_CO2=0.057
-eta_Roof_Thr=0.9
-eta_Side_Thr=0.9
+eta_Heat_CO2 = 0.057
+eta_Roof_Thr = 0.9
+eta_Side_Thr = 0.9
 
 data = {}
 
@@ -33,11 +33,13 @@ meteo = pd.read_csv("meteo.csv")
 # meteo = meteo.dropna(how="any")
 
 # Data initialization
+data["h_Air"], data["h_Gh"] = 3.8, 4.2
 data["A_Flr"], data["A_Side"] = 1.4 * (10 ** 4) , 0
 data["A_Roof"] = 0.1 * data["A_Flr"]
 data["A_Cov"] = 1.8 * 10 ** 4
+data["W_Gutter"] = sqrt(data["A_Flr"] * 0.3)
 def Compute_C(GH_C,eta_Sh_Scr_C):
-	U_Sh = 0
+	U_Sh = 0.5
 	return GH_C * (1 - eta_Sh_Scr_C * U_Sh)
 
 data["C_d"], data["C_w"] = Compute_C(0.75, 0), Compute_C(0.09, 0)
@@ -49,7 +51,7 @@ data["T_Air"], data["T_Out"], data["T_Can"], data["T_Top"], data["T_Mean_Air"] =
 def Compute_VP(T, Rh):
     P_Sat = 610.78 * exp((T - 273.15) / (T - 34.85) * 17.2694)
 
-    return Rh / 100 * P_Sat
+    return (Rh / 100 * P_Sat)
 
 data["Rh_Out"] = 81.7
 
@@ -59,19 +61,19 @@ data["T_ThScr"] = data["T_Air"] + 1
 data["T_MechCool"] = data["T_Air"]
 data["T_CovIn"] = data["T_Out"]
 data["VP_Out"] = Compute_VP(data["T_Out"], data["Rh_Out"])
-data["VP_ThScr"] = Compute_VP(data["T_ThScr"], 100)
-data["VP_MechCool"] = Compute_VP(data["T_MechCool"], 100)
-data["VP_CovIn"] = Compute_VP(data["T_CovIn"], 100)
+data["VP_ThScr"] = Compute_VP(data["T_ThScr"], data["Rh_Out"])
+data["VP_MechCool"] = Compute_VP(data["T_MechCool"], data["Rh_Out"])
+data["VP_CovIn"] = Compute_VP(data["T_CovIn"], data["Rh_Out"])
 
 def update_data(time):
     data["T_Air"] = climate.Tair[time] + 273.15
     data["T_Out"] = meteo.Tout[time] + 273.15
-    data["T_Can"] = data["T_Air"] + 1
+    data["T_Can"] = data["T_Air"] - 1
     data["T_Top"] = data["T_Can"]
     data["T_Mean_Air"] = (data["T_Air"] + data["T_Out"])/2
     data["Rh_Out"] = meteo.Rhout[time]
-    data["U_Side"] = climate.VentLee[time]/100
-    data["U_Vent_Forced"] = climate.Ventwind[time]/100
+    # data["U_Side"] = climate.VentLee[time]/100
+    # data["U_Vent_Forced"] = climate.Ventwind[time]/100
     data["v_wind"] = meteo.Windsp[time]
     data["rho_Air"] = Compute_rho(data["T_Air"]) 
     data["rho_Top"] = Compute_rho(data["T_Top"])
@@ -83,12 +85,12 @@ def update_data(time):
     data["T_MechCool"] = data["T_Air"]
     data["T_CovIn"] = data["T_Out"]
     data["VP_Out"] = Compute_VP(data["T_Out"], data["Rh_Out"])
-    data["VP_ThScr"] = Compute_VP(data["T_ThScr"], 100)
-    data["VP_MechCool"] = Compute_VP(data["T_MechCool"], 0.0)
-    data["VP_CovIn"] = Compute_VP(data["T_CovIn"], 100)
+    data["VP_ThScr"] = Compute_VP(data["T_ThScr"], data["Rh_Out"])
+    data["VP_MechCool"] = Compute_VP(data["T_MechCool"], data["Rh_Out"])
+    data["VP_CovIn"] = Compute_VP(data["T_CovIn"], data["Rh_Out"])
 
 data["h_Vent"], data["h_C_Buf"], data["h_Side_Roof"] = 0.68, 1, 3.8/2
-data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.1, 0.1, 0.0, 0.1, 0.3, 0.9, 0.1
+data["U_Blow"], data["U_Ext_CO2"], data["U_Pad"], data["U_Roof"], data["U_Side"], data["U_ThScr"],  data["U_Vent_Forced"] = 0.0, 0.1, 0.0, 0.1, 0.0, 0.9, 0.0
 data["U_Fog"], data["U_MechCool"] = 0.0, 0.0
 data["c_leakage"] = 1 * 10 ** - 4
 data["c_HECin"] = 1.86
