@@ -6,7 +6,7 @@ def getco2real(n):
 	return [0.0409*climate.CO2air[i]*44.01 for i in range(2,2+n)]
 
 def mse(pred, real):
-	return sqrt(sum([(pred[i] - real[i])**2 for i in range(len(pred)) ]))
+	return (sum([(pred[i] - real[i])**2 for i in range(len(pred)) ]))/len(pred)
 
 #x0, y0 for Co2air, co2top, t0, t, h mean time start, time end, step
 def euler(t0, x0, y0, dx0, dy0, h):
@@ -29,7 +29,7 @@ def eulerN(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
         update_data(i + startIndex)
         air.append(x0)
         top.append(y0)
-        print(mse(air,getco2real(len(air))))
+        print("After "+str(numCycle*(i+1))+" cycles:",mse(air,getco2real(len(air))))
     return air,top
 
 def rk4(t0, x0, y0, dx0, dy0, h):
@@ -56,7 +56,7 @@ def rk4N(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
         update_data(i + startIndex)
         air.append(x0)
         top.append(y0)
-        print(mse(air,getco2real(len(air))))
+        print("After "+str(numCycle*(i+1))+" cycles:",mse(air,getco2real(len(air))))
     return air,top
 
 air, top = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000) # 768.6
