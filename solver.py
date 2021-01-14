@@ -2,6 +2,12 @@ from co2 import *
 from vp import *
 import matplotlib.pyplot as plt
 
+def getco2real(n):
+	return [0.0409*climate.CO2air[i]*44.01 for i in range(2,2+n)]
+
+def mse(pred, real):
+	return sqrt(sum([(pred[i] - real[i])**2 for i in range(len(pred)) ]))
+
 #x0, y0 for Co2air, co2top, t0, t, h mean time start, time end, step
 def euler(t0, x0, y0, dx0, dy0, h):
     K1x=h*dx0(data,x0, y0)
@@ -14,13 +20,17 @@ def euler(t0, x0, y0, dx0, dy0, h):
 
 def eulerN(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
     # n=int((t-t0)/h)
+    air=[]
+    top=[]
     re=[]
     for i in range(n):
         for j in range(numCycle):
             x0,y0 = euler(t0, x0, y0, dx0, dy0, h)
         update_data(i + startIndex)
-        re.append((x0,y0))
-    return re
+        air.append(x0)
+        top.append(y0)
+        print(mse(air,getco2real(len(air))))
+    return air,top
 
 def rk4(t0, x0, y0, dx0, dy0, h):
     K1x=h*dx0(data, x0, y0)
@@ -38,13 +48,16 @@ def rk4(t0, x0, y0, dx0, dy0, h):
 
 def rk4N(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
     # n=int((t-t0)/h)
-    re = []
+    air=[]
+    top=[]
     for i in range (n):
         for j in range(numCycle):
             x0,y0 = rk4(t0, x0, y0, dx0, dy0, h)
         update_data(i + startIndex)
-        re.append((x0,y0))
-    return re
+        air.append(x0)
+        top.append(y0)
+        print(mse(air,getco2real(len(air))))
+    return air,top
 
 ans = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000) # 768.6
 air = []
@@ -56,7 +69,7 @@ for state in ans:
 
 # Let's compare by plotting everything
 
-co2air_real = [0.0409*climate.CO2air[i]*44.01 for i in range(2,2+len(air))]
+co2air_real = getco2real(len(air))
 xline = [5 * k for k in range(1,len(air)+1)]
 plt.xlabel("time elapsed (mins)")
 plt.ylabel("concentration (mg/m^3)")
@@ -78,13 +91,7 @@ plt.savefig("CO2_Compare.png")
 ###############################################################################################
 plt.clf()
 
-ans = rk4N(0, 1525.4, 1525.4, dxVP_Air, dxVP_Top, 5, 4000)
-air = []
-top = []
-for state in ans:
-    air.append(state[0])
-    top.append(state[1])
-    # print(state)
+air,top = rk4N(0, 1525.4, 1525.4, dxVP_Air, dxVP_Top, 5, 4000)
 
 # Let's compare by plotting everything
 
