@@ -59,13 +59,7 @@ def rk4N(t0, x0, y0, dx0, dy0, h, n, numCycle = 60, startIndex = 2):
         print(mse(air,getco2real(len(air))))
     return air,top
 
-ans = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000) # 768.6
-air = []
-top = []
-for state in ans:
-    air.append(state[0])
-    top.append(state[1])
-    # print(state)
+air, top = rk4N(0, 768.6, 768.6, dxCO2_Air, dxCO2_Top, 5, 4000) # 768.6
 
 # Let's compare by plotting everything
 
